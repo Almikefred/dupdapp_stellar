@@ -39,9 +39,11 @@ All contracts live under [`dupdapp_contract/contracts/`](dupdapp_contract/contra
 - Rust with the `wasm32v1-none` target
 - [`stellar-cli`](https://developers.stellar.org/docs/tools/developer-tools) (for deployment)
 - `wasm-opt` (binaryen), for optimised release builds
+- [`cargo-audit`](https://crates.io/crates/cargo-audit) (for `make lint`)
 
 ```bash
 rustup target add wasm32v1-none
+cargo install cargo-audit
 ```
 
 ### Build & test
@@ -51,6 +53,7 @@ make build              # debug build of all contracts
 make build-optimised    # release build + wasm-opt -Oz
 make check-wasm-size    # enforce the 64 KB per-contract WASM limit
 make test               # cargo test across the workspace
+make lint               # clippy + fmt --check + cargo audit (stops on first failure)
 ```
 
 Or directly with cargo, from `dupdapp_contract/`:

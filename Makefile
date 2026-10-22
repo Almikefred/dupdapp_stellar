@@ -4,7 +4,7 @@ WASM_SIZE_LIMIT := 65536  # 64 KB
 WASM_SIZE_WARN  := 52428  # 80% of 64 KB
 SIZE_REPORT     := wasm-size-report.md
 
-.PHONY: build build-optimised check-wasm-size wasm-size-report test
+.PHONY: build build-optimised check-wasm-size wasm-size-report test lint lint-clippy lint-fmt lint-audit
 
 build:
 	cd $(CONTRACTS_DIR) && cargo build --target wasm32v1-none --release
@@ -70,3 +70,28 @@ wasm-size-report: build-optimised
 
 test:
 	cd $(CONTRACTS_DIR) && cargo test
+
+# Run all lint checks in sequence, stopping on the first failure.
+lint: lint-clippy lint-fmt lint-audit
+	@echo "All lint checks passed."
+
+lint-clippy:
+	@echo "==> cargo clippy"
+	@cd $(CONTRACTS_DIR) && cargo clippy --all-targets -- -D warnings || { \
+		echo "ERROR: clippy found issues. Run 'cargo clippy --fix' or fix warnings above."; \
+		exit 1; \
+	}
+
+lint-fmt:
+	@echo "==> cargo fmt --check"
+	@cd $(CONTRACTS_DIR) && cargo fmt --all -- --check || { \
+		echo "ERROR: formatting issues found. Run 'cargo fmt --all' to fix."; \
+		exit 1; \
+	}
+
+lint-audit:
+	@echo "==> cargo audit"
+	@cd $(CONTRACTS_DIR) && cargo audit || { \
+		echo "ERROR: cargo audit found vulnerable dependencies. Review the report above."; \
+		exit 1; \
+	}
