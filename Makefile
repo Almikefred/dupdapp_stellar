@@ -1,6 +1,6 @@
 # Makefile for common development tasks
 
-CONTRACTS_DIR := dabdub_contracts
+CONTRACTS_DIR := dupdub_contracts
 WASM_DIR      := $(CONTRACTS_DIR)/target/wasm32v1-none/release
 WASM_SIZE_LIMIT := 65536  # 64 KB
 WASM_SIZE_WARN  := 52428  # 80% of 64 KB
