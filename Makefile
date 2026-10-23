@@ -6,7 +6,7 @@ WASM_SIZE_LIMIT := 65536  # 64 KB
 WASM_SIZE_WARN  := 52428  # 80% of 64 KB
 WASM_SIZE_REPORT := $(CONTRACTS_DIR)/wasm-size-report.md
 
-.PHONY: build build-optimised check-wasm-size wasm-size-report test verify-deployment lint lint-clippy lint-fmt lint-audit
+.PHONY: build build-optimised check-wasm-size wasm-size-report test integration-test verify-deployment lint lint-clippy lint-fmt lint-audit
 
 # Run all lint checks in sequence. Stops on the first failure with a clear
 # message identifying which check failed.
@@ -58,6 +58,10 @@ wasm-size-report: build-optimised
 
 test:
 	cd $(CONTRACTS_DIR) && cargo test
+
+integration-test: build
+	@echo "Running full payment lifecycle integration test against local testnet..."
+	./scripts/integration-test.sh
 
 verify-deployment:
 	bash scripts/verify-deployment.sh
