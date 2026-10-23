@@ -31,6 +31,9 @@ use soroban_sdk::{
 
 const MIN_DELAY_LEDGERS: u32 = 17_280;
 
+/// Contract ABI version. Bumped on every WASM upgrade.
+const VERSION: u32 = 1;
+
 // ---------------------------------------------------------------------------
 // Standardised error codes (PascalCase) — see issue #1314.
 // Shared format across all contracts until `#[contracterror]` enums land.
@@ -70,6 +73,7 @@ pub enum DataKey {
     Counter,
     Change(BytesN<32>),
     PendingList,
+    Version,
 }
 
 // ---------------------------------------------------------------------------
@@ -118,6 +122,15 @@ impl AdminTimelockContract {
         env.storage()
             .instance()
             .set(&DataKey::PendingList, &Vec::<BytesN<32>>::new(&env));
+        env.storage().instance().set(&DataKey::Version, &VERSION);
+    }
+
+    /// Return the contract ABI version.
+    pub fn get_version(env: Env) -> u32 {
+        env.storage()
+            .instance()
+            .get(&DataKey::Version)
+            .unwrap_or(VERSION)
     }
 
     /// Queue a parameter change. Returns the change_id.
