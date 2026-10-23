@@ -27,6 +27,14 @@ struct MaxSlippageUpdatedEvent {
     new_bps: u32,
 }
 
+#[contracttype]
+struct PairMaxSlippageUpdatedEvent {
+    asset_a: Address,
+    asset_b: Address,
+    old_bps: u32,
+    new_bps: u32,
+}
+
 #[contract]
 pub struct SlippageProtectionContract;
 
@@ -95,9 +103,21 @@ impl SlippageProtectionContract {
         if bps > 10_000 {
             panic!("bps must be <= 10000");
         }
+
+        let old_bps = Self::pair_max_slippage(&env, &asset_a, &asset_b);
         env.storage()
             .instance()
-            .set(&DataKey::PairMaxSlippageBps(asset_a, asset_b), &bps);
+            .set(&DataKey::PairMaxSlippageBps(asset_a.clone(), asset_b.clone()), &bps);
+
+        env.events().publish(
+            ("SLIPPAGE_PROTECTION", "pair_max_slippage_set"),
+            PairMaxSlippageUpdatedEvent {
+                asset_a,
+                asset_b,
+                old_bps,
+                new_bps: bps,
+            },
+        );
     }
 
     pub fn get_max_slippage(env: Env) -> u32 {
